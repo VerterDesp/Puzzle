@@ -95,4 +95,5 @@ public class BorderInfo {
                 " top " + topBorderImName + " " + String.format("%.3f" , topBorderRate) +"% |"+
                 " bottom " + bottomBorderImName + " " + String.format("%.3f", bottomBorderRate) +"% |";
     }
+
 }

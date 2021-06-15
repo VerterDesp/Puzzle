@@ -7,13 +7,15 @@ import java.util.*;
 
 public class Algorithm {
 
-    private static final File source = new File("src/resources/chunks");
+    private static final File source = new File("src/resources/chunks"); // Delete
     private final String folder;
     private File[] images;
     private final int partThickness = 1;
     private final double defaultRate = 90.0d;
     private int originalWidth;
     private int originalHeight;
+    private Map<String, BorderInfo> data = new HashMap<>();
+    //private File[] chunks = getFilesFromFolder(this.folder);
 
     public Algorithm(String folder, int width, int height) {
         this.folder = folder;
@@ -21,13 +23,23 @@ public class Algorithm {
         this.originalHeight = height;
     }
 
-    private File[] getFilesFromFolder(String folder) {
-        return Path.of(folder).toFile().listFiles();
+    public Algorithm(String folder) {
+        this.folder = folder;
     }
 
-    private Map<String, BorderInfo> rawData() throws Exception {
+//    private void makeSchema() {
+//        List<File> solvedImage = new ArrayList<>();
+//        File[] images = getFilesFromFolder(this.folder);
+//        images.
+//
+//        for(Map.Entry<String, BorderInfo> m : data.entrySet()) {
+//            if (data)
+//        }
+//
+//    }
+
+    private void makeData() throws Exception {
         this.images = getFilesFromFolder(this.folder);
-        Map<String, BorderInfo> map = new HashMap<>();
 
         for(File file : Objects.requireNonNull(images)) {
             BorderInfo info = new BorderInfo();
@@ -48,15 +60,57 @@ public class Algorithm {
             info.setBottomBorderImName(bottomNeighbor.getNeighborName());
             info.setBottomBorderRate(bottomNeighbor.getRate());
 
-            map.put(file.getName(), info);
+            data.put(file.getName(), info);
         }
 
-            for(Map.Entry<String, BorderInfo> m : map.entrySet()) {
-                System.out.println(m);
+        correctData(data);
+
+        for(Map.Entry<String, BorderInfo> m : data.entrySet()) // Delete
+            System.out.println(m);                            // Delete
+    }
+
+    private void correctData(Map<String, BorderInfo> rawData) {
+        for(Map.Entry<String, BorderInfo> map : rawData.entrySet()) {
+            BorderInfo value = map.getValue();
+            String key = map.getKey();
+
+            String rightNeighbor = value.getRightBorderImName();
+            if (rightNeighbor != null) {
+                String left = rawData.get(rightNeighbor).getLeftBorderImName();
+                if(!left.equals(key)) {
+                    value.setRightBorderImName(null);
+                    value.setRightBorderRate(0.0d);
+                }
             }
-            return map;
-        }
 
+            String leftNeighbor = value.getLeftBorderImName();
+            if (leftNeighbor != null) {
+                String right = rawData.get(leftNeighbor).getRightBorderImName();
+                if (!right.equals(key)) {
+                    value.setLeftBorderImName(null);
+                    value.setLeftBorderRate(0.0d);
+                }
+            }
+
+            String topNeighbor = value.getTopBorderImName();
+            if (topNeighbor != null) {
+                String bottom = rawData.get(topNeighbor).getBottomBorderImName();
+                if (!bottom.equals(key)) {
+                    value.setTopBorderImName(null);
+                    value.setTopBorderRate(0.0d);
+                }
+            }
+
+            String bottomNeighbor = value.getBottomBorderImName();
+            if (bottomNeighbor != null) {
+                String top = rawData.get(bottomNeighbor).getTopBorderImName();
+                if (!top.equals(key)) {
+                    value.setBottomBorderImName(null);
+                    value.setBottomBorderRate(0.0d);
+                }
+            }
+        }
+    }
 
     private ImageInfo findRightNeighbor(File file, File[] files) throws IOException {
         BufferedImage right = rightBorder(ImageIO.read(file));
@@ -74,7 +128,7 @@ public class Algorithm {
         }
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
-            imageInfo.setNeighborName("no");
+            imageInfo.setNeighborName(null);
             imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
@@ -99,7 +153,7 @@ public class Algorithm {
         }
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
-            imageInfo.setNeighborName("no");
+            imageInfo.setNeighborName(null);
             imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
@@ -124,7 +178,7 @@ public class Algorithm {
         }
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
-            imageInfo.setNeighborName("no");
+            imageInfo.setNeighborName(null);
             imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
@@ -149,7 +203,7 @@ public class Algorithm {
         }
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
-            imageInfo.setNeighborName("no");
+            imageInfo.setNeighborName(null);
             imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
@@ -157,8 +211,6 @@ public class Algorithm {
         }
         return imageInfo;
     }
-
-    //private ImageInfo universalFinder(BufferedImage myImage)
 
     private BufferedImage leftBorder(BufferedImage im) {
         return im.getSubimage(0, 0, partThickness, im.getHeight());
@@ -178,9 +230,7 @@ public class Algorithm {
 
     private double compareImage(BufferedImage fileA, BufferedImage fileB) {
         int width1 = fileA.getWidth();
-        int width2 = fileB.getWidth();
         int height1 = fileA.getHeight();
-        int height2 = fileB.getHeight();
 
         long difference = 0;
             for (int y = 0; y < height1; y++) {
@@ -227,9 +277,12 @@ public class Algorithm {
         return imagesChunks;
     }
 
-    public static void main(String[] args) throws Exception {
-        //new Algorithm(source.getAbsolutePath(), 800, 600).autoSolve();
+    private File[] getFilesFromFolder(String folder) {
+        return Path.of(folder).toFile().listFiles();
     }
 
-
+    public static void main(String[] args) throws Exception {
+        Algorithm algorithm = new Algorithm(source.getAbsolutePath());
+        algorithm.makeData();
+    }
 }

@@ -5,13 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class PuzzleFrame extends JFrame {
 
@@ -32,7 +28,7 @@ public class PuzzleFrame extends JFrame {
     }
 
     private void initUI() throws IOException {
-        initSolutionCoordinates(); // Coordinates for checking solution each time per moving last button
+        initSolutionCoordinates(); // Init right position of each button
 
         panel.setBorder(BorderFactory.createLineBorder(Color.gray));
         panel.setLayout(new GridLayout(rows, columns, 0, 0));
@@ -44,7 +40,8 @@ public class PuzzleFrame extends JFrame {
         moveChunks(chunks); // Moving image chunks to its folder
 
         //Collections.shuffle(buttons); // Shuffle puzzle buttons
-        buttons.add(lastButton); // Put the white button to puzzle buttons
+
+        buttons.add(lastButton); // Put last button only after shuffling, or it will be anywhere!!!
 
         addButtonsToPanel(buttons); // Add puzzle buttons to game panel
 
@@ -54,13 +51,6 @@ public class PuzzleFrame extends JFrame {
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
-        autoSolve(chunksFolder.getAbsolutePath());
-
-
-    }
-
-    private void autoSolve(String folder) throws IOException {
 
     }
 
@@ -153,7 +143,7 @@ public class PuzzleFrame extends JFrame {
         }
 
         if (compareList(solution, current)) {
-            JOptionPane.showMessageDialog(panel, "Finished",
+            JOptionPane.showMessageDialog(panel, "Congratulation!!!",
                     "You did it!", JOptionPane.INFORMATION_MESSAGE);
         }
     }
