@@ -14,7 +14,7 @@ public class Algorithm {
     private final double defaultRate = 90.0d;
     private int originalWidth;
     private int originalHeight;
-    private Map<String, BorderInfo> data = new HashMap<>();
+    private Map<String, BorderInfo> data;
     //private File[] chunks = getFilesFromFolder(this.folder);
 
     public Algorithm(String folder, int width, int height) {
@@ -27,38 +27,55 @@ public class Algorithm {
         this.folder = folder;
     }
 
-//    private void makeSchema() {
-//        List<File> solvedImage = new ArrayList<>();
-//        File[] images = getFilesFromFolder(this.folder);
-//        images.
-//
-//        for(Map.Entry<String, BorderInfo> m : data.entrySet()) {
-//            if (data)
-//        }
-//
-//    }
+    private void detectSchema() {
+        List<File> solvedImage = new ArrayList<>();
+        File[] images = getFilesFromFolder(this.folder);
+        //images.
+
+        for(Map.Entry<String, BorderInfo> m : data.entrySet()) {
+            //if (data)
+        }
+
+    }
+
+
+    private String findFirst(Map<String, BorderInfo> map) {
+        String first = null;
+        for(Map.Entry<String, BorderInfo> m : map.entrySet()) {
+            String right = m.getValue().getRightBorderImName();
+            String bottom = m.getValue().getBottomBorderImName();
+            String left = m.getValue().getLeftBorderImName();
+            String top = m.getValue().getTopBorderImName();
+            if (right != null && bottom != null &&
+                left == null && top == null) {
+                first = m.getKey();
+            }
+        }
+        return first;
+    }
 
     private void makeData() throws Exception {
         this.images = getFilesFromFolder(this.folder);
+        data = new HashMap<>();
 
         for(File file : Objects.requireNonNull(images)) {
             BorderInfo info = new BorderInfo();
 
             ImageInfo rightNeighbor = findRightNeighbor(file, images);
             info.setRightBorderImName(rightNeighbor.getNeighborName());
-            info.setRightBorderRate(rightNeighbor.getRate());
+            //info.setRightBorderRate(rightNeighbor.getRate());
 
             ImageInfo leftNeighbor = findLeftNeighbor(file, images);
             info.setLeftBorderImName(leftNeighbor.getNeighborName());
-            info.setLeftBorderRate(leftNeighbor.getRate());
+            //info.setLeftBorderRate(leftNeighbor.getRate());
 
             ImageInfo topNeighbor = findTopNeighbor(file, images);
             info.setTopBorderImName(topNeighbor.getNeighborName());
-            info.setTopBorderRate(topNeighbor.getRate());
+            //info.setTopBorderRate(topNeighbor.getRate());
 
             ImageInfo bottomNeighbor = findBottomNeighbor(file, images);
             info.setBottomBorderImName(bottomNeighbor.getNeighborName());
-            info.setBottomBorderRate(bottomNeighbor.getRate());
+            //info.setBottomBorderRate(bottomNeighbor.getRate());
 
             data.put(file.getName(), info);
         }
@@ -79,7 +96,7 @@ public class Algorithm {
                 String left = rawData.get(rightNeighbor).getLeftBorderImName();
                 if(!left.equals(key)) {
                     value.setRightBorderImName(null);
-                    value.setRightBorderRate(0.0d);
+                    //value.setRightBorderRate(0.0d);
                 }
             }
 
@@ -88,7 +105,7 @@ public class Algorithm {
                 String right = rawData.get(leftNeighbor).getRightBorderImName();
                 if (!right.equals(key)) {
                     value.setLeftBorderImName(null);
-                    value.setLeftBorderRate(0.0d);
+                    //value.setLeftBorderRate(0.0d);
                 }
             }
 
@@ -97,7 +114,7 @@ public class Algorithm {
                 String bottom = rawData.get(topNeighbor).getBottomBorderImName();
                 if (!bottom.equals(key)) {
                     value.setTopBorderImName(null);
-                    value.setTopBorderRate(0.0d);
+                    //value.setTopBorderRate(0.0d);
                 }
             }
 
@@ -106,7 +123,7 @@ public class Algorithm {
                 String top = rawData.get(bottomNeighbor).getTopBorderImName();
                 if (!top.equals(key)) {
                     value.setBottomBorderImName(null);
-                    value.setBottomBorderRate(0.0d);
+                    //value.setBottomBorderRate(0.0d);
                 }
             }
         }
@@ -129,10 +146,10 @@ public class Algorithm {
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
             imageInfo.setNeighborName(null);
-            imageInfo.setRate(0.0d);
+            //imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
-            imageInfo.setRate(rate);
+            //imageInfo.setRate(rate);
         }
         return imageInfo;
     }
@@ -154,10 +171,10 @@ public class Algorithm {
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
             imageInfo.setNeighborName(null);
-            imageInfo.setRate(0.0d);
+            //imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
-            imageInfo.setRate(rate);
+            //imageInfo.setRate(rate);
         }
         return imageInfo;
     }
@@ -179,10 +196,10 @@ public class Algorithm {
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
             imageInfo.setNeighborName(null);
-            imageInfo.setRate(0.0d);
+            //imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
-            imageInfo.setRate(rate);
+            //imageInfo.setRate(rate);
         }
         return imageInfo;
     }
@@ -204,10 +221,10 @@ public class Algorithm {
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
             imageInfo.setNeighborName(null);
-            imageInfo.setRate(0.0d);
+            //imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
-            imageInfo.setRate(rate);
+            //imageInfo.setRate(rate);
         }
         return imageInfo;
     }
