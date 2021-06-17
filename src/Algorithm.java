@@ -9,35 +9,58 @@ public class Algorithm {
 
     private static final File source = new File("src/resources/chunks"); // Delete
     private final String folder;
-    private File[] images;
-    private final int partThickness = 1;
-    private final double defaultRate = 90.0d;
-    private int originalWidth;
-    private int originalHeight;
-    private Map<String, BorderInfo> data;
-    //private File[] chunks = getFilesFromFolder(this.folder);
 
-    public Algorithm(String folder, int width, int height) {
-        this.folder = folder;
-        this.originalWidth = width;
-        this.originalHeight = height;
-    }
+
+    private List<File> images; // List of files from chunks folder
+    private Map<String, BorderInfo> data;
+    private Map<String, File> fileNames;
+    private List<File> finalFile;
+
+    /**
+     * Compare algorithm settings
+     */
+    private final int partThickness = 1; // Thickness of each image border to compare
+    private final double defaultRate = 90.0d; // Possibility to be a neighbor
+
+//    public Algorithm(String folder, int width, int height) {
+//        this.folder = folder;
+//        this.originalWidth = width;
+//        this.originalHeight = height;
+//    }
 
     public Algorithm(String folder) {
         this.folder = folder;
     }
 
-    private void detectSchema() {
-        List<File> solvedImage = new ArrayList<>();
-        File[] images = getFilesFromFolder(this.folder);
-        //images.
+    private void launch() throws Exception {
+        makeData();
+    }
 
-        for(Map.Entry<String, BorderInfo> m : data.entrySet()) {
-            //if (data)
-        }
+    //for(Map.Entry<String, BorderInfo> m : data.entrySet())
+
+    private void detectSchema() {
+        finalFile = new ArrayList<>();
+        fileNames = getFileNames(images);
+
+        int first = images.indexOf(fileNames.get(findFirst(data)));
+        finalFile.add(images.get(first));
+
+        String next = getNextInRow(findFirst(data));
+
+        while (next != null) {
+            finalFile.add(fileNames.get(next));
+            next = getNextInRow(next);
+        } //
 
     }
 
+    private String getNextInColumn(String previous) {
+        return data.get(previous).getBottomBorderImName();
+    }
+
+    private String getNextInRow(String previous) {
+        return data.get(previous).getRightBorderImName();
+    }
 
     private String findFirst(Map<String, BorderInfo> map) {
         String first = null;
@@ -54,9 +77,16 @@ public class Algorithm {
         return first;
     }
 
+    private Map<String, File> getFileNames(List<File> fileList) {
+        Map<String, File> namesFiles = new HashMap<>();
+        for (File f : fileList)
+            namesFiles.put(f.getName(), f);
+        return namesFiles;
+    }
+
     private void makeData() throws Exception {
-        this.images = getFilesFromFolder(this.folder);
         data = new HashMap<>();
+        this.images = getFilesFromFolder(this.folder);
 
         for(File file : Objects.requireNonNull(images)) {
             BorderInfo info = new BorderInfo();
@@ -129,7 +159,7 @@ public class Algorithm {
         }
     }
 
-    private ImageInfo findRightNeighbor(File file, File[] files) throws IOException {
+    private ImageInfo findRightNeighbor(File file, List<File> files) throws IOException {
         BufferedImage right = rightBorder(ImageIO.read(file));
         double rate = defaultRate;
         String neighbor = null;
@@ -154,7 +184,7 @@ public class Algorithm {
         return imageInfo;
     }
 
-    private ImageInfo findLeftNeighbor(File file, File[] files) throws IOException {
+    private ImageInfo findLeftNeighbor(File file, List<File> files) throws IOException {
         BufferedImage left = leftBorder(ImageIO.read(file));
         double rate = defaultRate;
         String neighbor = null;
@@ -179,7 +209,7 @@ public class Algorithm {
         return imageInfo;
     }
 
-    private ImageInfo findTopNeighbor(File file, File[] files) throws IOException {
+    private ImageInfo findTopNeighbor(File file, List<File> files) throws IOException {
         BufferedImage top = topBorder(ImageIO.read(file));
         double rate = defaultRate;
         String neighbor = null;
@@ -204,7 +234,7 @@ public class Algorithm {
         return imageInfo;
     }
 
-    private ImageInfo findBottomNeighbor(File file, File[] files) throws IOException {
+    private ImageInfo findBottomNeighbor(File file, List<File> files) throws IOException {
         BufferedImage bottom = bottomBorder(ImageIO.read(file));
         double rate = defaultRate;
         String neighbor = null;
@@ -285,7 +315,7 @@ public class Algorithm {
     private List<BufferedImage> getImagesFromFolder(String folder) throws Exception {
         var files = getFilesFromFolder(folder);
         List<BufferedImage> imagesChunks;
-        if (files != null && files.length > 0) {
+        if (files != null && files.size() > 0) {
             imagesChunks = new ArrayList<>();
             for (File fl : files)
                 imagesChunks.add(ImageIO.read(fl));
@@ -294,8 +324,9 @@ public class Algorithm {
         return imagesChunks;
     }
 
-    private File[] getFilesFromFolder(String folder) {
-        return Path.of(folder).toFile().listFiles();
+    private List<File> getFilesFromFolder(String folder) {
+        File[] fileArray = Path.of(folder).toFile().listFiles();
+        return Arrays.asList(Objects.requireNonNull(fileArray));
     }
 
     public static void main(String[] args) throws Exception {
