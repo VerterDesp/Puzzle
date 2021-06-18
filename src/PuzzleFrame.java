@@ -12,26 +12,26 @@ import java.util.stream.Collectors;
 public class PuzzleFrame extends JFrame {
 
     private final JPanel panel = new JPanel();
-    private final JPanel bottomPanel = new JPanel();
+    //private final JPanel bottomPanel = new JPanel();
     private final int rows = 4;
     private final int columns = 3;
     private final File sourceImage = new File("src/resources/original/gep.jpeg");
     private final File chunksFolder = new File("src/resources/chunks");
     private final List<BufferedImage> chunks = new ArrayList<>();
-    private final List<PuzzleButton> buttons = new ArrayList<>();
+    private List<PuzzleButton> buttons = new ArrayList<>();
 
     private PuzzleButton lastButton;
     private List<Point> solution;
 
-    public PuzzleFrame() throws IOException {
+    public PuzzleFrame() throws Exception {
         initUI();
     }
 
-    private void initUI() throws IOException {
+    private void initUI() throws Exception {
         initSolutionCoordinates(); // Init right position of each button
 
         panel.setBorder(BorderFactory.createLineBorder(Color.gray));
-        panel.setLayout(new GridLayout(rows, columns, 0, 0));
+        panel.setLayout(new GridLayout(rows + 1, columns, 0, 0));
 
         add(panel, BorderLayout.CENTER); // Add panel to the container
 
@@ -39,11 +39,27 @@ public class PuzzleFrame extends JFrame {
 
         moveChunks(chunks); // Moving image chunks to its folder
 
-        //Collections.shuffle(buttons); // Shuffle puzzle buttons
+        Collections.shuffle(buttons); // Shuffle puzzle buttons
 
         buttons.add(lastButton); // Put last button only after shuffling, or it will be anywhere!!!
 
         addButtonsToPanel(buttons); // Add puzzle buttons to game panel
+
+
+        JButton jButton = new JButton("Click here!");
+        // Add button to JPanel
+        panel.add(jButton);
+        jButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    autoSolve();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            }
+        });
+
 
         pack(); // Sizes the frame to preferred size
 
@@ -52,6 +68,23 @@ public class PuzzleFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
+    }
+
+    public void autoSolve() throws Exception {
+        Algorithm al = new Algorithm(chunksFolder.getAbsolutePath());
+        al.launch();
+
+        buttons = new ArrayList<>();
+        splitImage(al.getFinalImage());
+        buttons.add(lastButton);
+
+        panel.removeAll();
+        for (JComponent btn : buttons) {
+            panel.add(btn);
+        }
+        panel.validate();
+
+        checkSolution();
     }
 
     private void initSolutionCoordinates() {

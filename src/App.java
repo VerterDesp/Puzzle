@@ -1,6 +1,4 @@
 import java.awt.*;
-import java.io.IOException;
-
 
 public class App {
     public static void main( String[] args )  {
@@ -9,7 +7,10 @@ public class App {
             try {
                 puzzleFrame = new PuzzleFrame();
                 puzzleFrame.setVisible(true);
-            } catch (IOException e) {
+
+
+                //puzzleFrame.autoSolve();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });

@@ -13,53 +13,106 @@ public class Algorithm {
 
     private List<File> images; // List of files from chunks folder
     private Map<String, BorderInfo> data;
-    private Map<String, File> fileNames;
-    private List<File> finalFile;
+    private List<String> finalSequence;
+    private List<BufferedImage> finalImgSeq;
 
-    /**
-     * Compare algorithm settings
-     */
+    private BufferedImage finalImage;
+
+    // Compare algorithm settings
     private final int partThickness = 1; // Thickness of each image border to compare
     private final double defaultRate = 90.0d; // Possibility to be a neighbor
-
-//    public Algorithm(String folder, int width, int height) {
-//        this.folder = folder;
-//        this.originalWidth = width;
-//        this.originalHeight = height;
-//    }
 
     public Algorithm(String folder) {
         this.folder = folder;
     }
 
-    private void launch() throws Exception {
+    public void launch() throws Exception {
         makeData();
+        detectSchema();
+        makeFinalImgSeq();
+        finalImage = mergeFinalImage();
+        //ImageIO.write(finalImage, "jpeg", new File("finalImg.jpg"));
     }
 
-    //for(Map.Entry<String, BorderInfo> m : data.entrySet())
+    private BufferedImage mergeFinalImage() throws IOException {
+        BufferedImage chunk = ImageIO.read(images.get(0));
+        int type = chunk.getType();
+        int chunkWidth = chunk.getWidth();
+        int chunkHeight = chunk.getHeight();
+        int rows = getOriginalRows();
+        int columns = getOriginalColumns();
+        BufferedImage finalImg = new BufferedImage(
+                chunkWidth * columns,
+                chunkHeight * rows, type);
+        int num = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                finalImg.createGraphics().drawImage(finalImgSeq.get(num),
+                        chunkWidth * j,
+                        chunkHeight * i,
+                        null);
+                num++;
+            }
+        }
+        return finalImg;
+    }
+
+    private void makeFinalImgSeq() throws IOException {
+        finalImgSeq = new ArrayList<>();
+        for (String name : finalSequence) {
+            for (File file : images) {
+                if (file.getName().equals(name)) {
+                    finalImgSeq.add(ImageIO.read(file));
+                }
+            }
+        }
+    }
 
     private void detectSchema() {
-        finalFile = new ArrayList<>();
-        fileNames = getFileNames(images);
+        finalSequence = new ArrayList<>();
 
-        int first = images.indexOf(fileNames.get(findFirst(data)));
-        finalFile.add(images.get(first));
+        String firstInRow = findFirst(data);
+        String next = getNextInRow(firstInRow);
+        finalSequence.add(firstInRow);
 
-        String next = getNextInRow(findFirst(data));
-
-        while (next != null) {
-            finalFile.add(fileNames.get(next));
-            next = getNextInRow(next);
-        } //
-
+        while (finalSequence.size() < images.size()) {
+            if (next != null) {
+                finalSequence.add(next);
+                next = getNextInRow(next);
+            } else {
+                firstInRow = getNextInColumn(firstInRow);
+                finalSequence.add(firstInRow);
+                next = getNextInRow(firstInRow);
+            }
+        }
     }
 
-    private String getNextInColumn(String previous) {
-        return data.get(previous).getBottomBorderImName();
+    private int getOriginalRows() {
+        int count = 0;
+        String bottom = findFirst(data);
+        while (bottom != null) {
+            bottom = getNextInColumn(bottom);
+            count++;
+        }
+        return count;
+    }
+
+    private int getOriginalColumns() {
+        int count = 0;
+        String right = findFirst(data);
+        while (right != null) {
+            right = getNextInRow(right);
+            count++;
+        }
+        return count;
     }
 
     private String getNextInRow(String previous) {
         return data.get(previous).getRightBorderImName();
+    }
+
+    private String getNextInColumn(String previous) {
+        return data.get(previous).getBottomBorderImName();
     }
 
     private String findFirst(Map<String, BorderInfo> map) {
@@ -75,13 +128,6 @@ public class Algorithm {
             }
         }
         return first;
-    }
-
-    private Map<String, File> getFileNames(List<File> fileList) {
-        Map<String, File> namesFiles = new HashMap<>();
-        for (File f : fileList)
-            namesFiles.put(f.getName(), f);
-        return namesFiles;
     }
 
     private void makeData() throws Exception {
@@ -112,8 +158,8 @@ public class Algorithm {
 
         correctData(data);
 
-        for(Map.Entry<String, BorderInfo> m : data.entrySet()) // Delete
-            System.out.println(m);                            // Delete
+//        for(Map.Entry<String, BorderInfo> m : data.entrySet()) // Delete
+//            System.out.println(m);                            // Delete
     }
 
     private void correctData(Map<String, BorderInfo> rawData) {
@@ -312,25 +358,12 @@ public class Algorithm {
         return 100d - ((avg_different_pixels / 255) * 100);
     }
 
-    private List<BufferedImage> getImagesFromFolder(String folder) throws Exception {
-        var files = getFilesFromFolder(folder);
-        List<BufferedImage> imagesChunks;
-        if (files != null && files.size() > 0) {
-            imagesChunks = new ArrayList<>();
-            for (File fl : files)
-                imagesChunks.add(ImageIO.read(fl));
-        } else
-            throw new Exception("Wrong path to files");
-        return imagesChunks;
-    }
-
     private List<File> getFilesFromFolder(String folder) {
         File[] fileArray = Path.of(folder).toFile().listFiles();
         return Arrays.asList(Objects.requireNonNull(fileArray));
     }
 
-    public static void main(String[] args) throws Exception {
-        Algorithm algorithm = new Algorithm(source.getAbsolutePath());
-        algorithm.makeData();
+    public BufferedImage getFinalImage() {
+        return finalImage;
     }
 }
