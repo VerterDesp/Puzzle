@@ -47,7 +47,6 @@ public class PuzzleFrame extends JFrame {
 
 
         JButton jButton = new JButton("Click here!");
-        // Add button to JPanel
         panel.add(jButton);
         jButton.addActionListener(new AbstractAction() {
             @Override

@@ -1,7 +1,6 @@
-import java.awt.image.BufferedImage;
+
 
 public class BorderInfo {
-    private BufferedImage sourceIm;
 
     private String leftBorderImName;
     //private double leftBorderRate;
@@ -15,13 +14,6 @@ public class BorderInfo {
     private String bottomBorderImName;
     //private double bottomBorderRate;
 
-    public BufferedImage getSourceIm() {
-        return sourceIm;
-    }
-
-    public void setSourceIm(BufferedImage sourceIm) {
-        this.sourceIm = sourceIm;
-    }
 
     public String getLeftBorderImName() {
         return leftBorderImName;
@@ -54,14 +46,6 @@ public class BorderInfo {
     public void setBottomBorderImName(String bottomBorderImName) {
         this.bottomBorderImName = bottomBorderImName;
     }
-
-//    @Override
-//    public String toString() {
-//        return " left - " + leftBorderImName + " " + String.format("%.3f",leftBorderRate) +"% |"+
-//                " right " + rightBorderImName + " " + String.format("%.3f", rightBorderRate) +"% |"+
-//                " top " + topBorderImName + " " + String.format("%.3f" , topBorderRate) +"% |"+
-//                " bottom " + bottomBorderImName + " " + String.format("%.3f", bottomBorderRate) +"% |";
-//    }
 
     @Override
     public String toString() {

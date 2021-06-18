@@ -7,9 +7,7 @@ import java.util.*;
 
 public class Algorithm {
 
-    private static final File source = new File("src/resources/chunks"); // Delete
     private final String folder;
-
 
     private List<File> images; // List of files from chunks folder
     private Map<String, BorderInfo> data;
@@ -139,27 +137,20 @@ public class Algorithm {
 
             ImageInfo rightNeighbor = findRightNeighbor(file, images);
             info.setRightBorderImName(rightNeighbor.getNeighborName());
-            //info.setRightBorderRate(rightNeighbor.getRate());
 
             ImageInfo leftNeighbor = findLeftNeighbor(file, images);
             info.setLeftBorderImName(leftNeighbor.getNeighborName());
-            //info.setLeftBorderRate(leftNeighbor.getRate());
 
             ImageInfo topNeighbor = findTopNeighbor(file, images);
             info.setTopBorderImName(topNeighbor.getNeighborName());
-            //info.setTopBorderRate(topNeighbor.getRate());
 
             ImageInfo bottomNeighbor = findBottomNeighbor(file, images);
             info.setBottomBorderImName(bottomNeighbor.getNeighborName());
-            //info.setBottomBorderRate(bottomNeighbor.getRate());
 
             data.put(file.getName(), info);
         }
 
         correctData(data);
-
-//        for(Map.Entry<String, BorderInfo> m : data.entrySet()) // Delete
-//            System.out.println(m);                            // Delete
     }
 
     private void correctData(Map<String, BorderInfo> rawData) {
@@ -172,7 +163,6 @@ public class Algorithm {
                 String left = rawData.get(rightNeighbor).getLeftBorderImName();
                 if(!left.equals(key)) {
                     value.setRightBorderImName(null);
-                    //value.setRightBorderRate(0.0d);
                 }
             }
 
@@ -181,7 +171,6 @@ public class Algorithm {
                 String right = rawData.get(leftNeighbor).getRightBorderImName();
                 if (!right.equals(key)) {
                     value.setLeftBorderImName(null);
-                    //value.setLeftBorderRate(0.0d);
                 }
             }
 
@@ -190,7 +179,6 @@ public class Algorithm {
                 String bottom = rawData.get(topNeighbor).getBottomBorderImName();
                 if (!bottom.equals(key)) {
                     value.setTopBorderImName(null);
-                    //value.setTopBorderRate(0.0d);
                 }
             }
 
@@ -199,7 +187,6 @@ public class Algorithm {
                 String top = rawData.get(bottomNeighbor).getTopBorderImName();
                 if (!top.equals(key)) {
                     value.setBottomBorderImName(null);
-                    //value.setBottomBorderRate(0.0d);
                 }
             }
         }

@@ -7,9 +7,6 @@ public class App {
             try {
                 puzzleFrame = new PuzzleFrame();
                 puzzleFrame.setVisible(true);
-
-
-                //puzzleFrame.autoSolve();
             } catch (Exception e) {
                 e.printStackTrace();
             }
