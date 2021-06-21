@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class PuzzleFrame extends JFrame {
 
     private final JPanel panel = new JPanel();
-    //private final JPanel bottomPanel = new JPanel();
+    private final JPanel bottomPanel = new JPanel();
     private final int rows = 4;
     private final int columns = 3;
     private final File sourceImage = new File("src/resources/original/gep.jpeg");
@@ -31,7 +31,7 @@ public class PuzzleFrame extends JFrame {
         initSolutionCoordinates(); // Init right position of each button
 
         panel.setBorder(BorderFactory.createLineBorder(Color.gray));
-        panel.setLayout(new GridLayout(rows + 1, columns, 0, 0));
+        panel.setLayout(new GridLayout(rows, columns, 0, 0));
 
         add(panel, BorderLayout.CENTER); // Add panel to the container
 
@@ -46,32 +46,27 @@ public class PuzzleFrame extends JFrame {
         addButtonsToPanel(buttons); // Add puzzle buttons to game panel
 
 
-        JButton jButton = new JButton("Click here!");
-        panel.add(jButton);
-        jButton.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    autoSolve();
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            }
-        });
-
+        JButton jButton = new JButton("Solve");
+        jButton.addActionListener(a -> autoSolve());
+        add(bottomPanel, BorderLayout.EAST);
+        bottomPanel.add(jButton);
 
         pack(); // Sizes the frame to preferred size
 
         setTitle("TopPuzzle");
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null); // Centralize the window
 
     }
 
-    public void autoSolve() throws Exception {
+    public void autoSolve() {
         Algorithm al = new Algorithm(chunksFolder.getAbsolutePath());
-        al.launch();
+        try {
+            al.launch();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         buttons = new ArrayList<>();
         splitImage(al.getFinalImage());
