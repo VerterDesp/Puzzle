@@ -1,7 +1,6 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +14,7 @@ public class PuzzleFrame extends JFrame {
     private final JPanel bottomPanel = new JPanel();
     private final int rows = 4;
     private final int columns = 3;
-    private final File sourceImage = new File("src/resources/original/gep.jpeg");
+    private final File sourceImage = new File("src/resources/original/gor.jpg");
     private final File chunksFolder = new File("src/resources/chunks");
     private final List<BufferedImage> chunks = new ArrayList<>();
     private List<PuzzleButton> buttons = new ArrayList<>();
@@ -31,7 +30,7 @@ public class PuzzleFrame extends JFrame {
         initSolutionCoordinates(); // Init right position of each button
 
         panel.setBorder(BorderFactory.createLineBorder(Color.gray));
-        panel.setLayout(new GridLayout(rows, columns, 0, 0));
+        panel.setLayout(new GridLayout(rows, columns, 0, 0)); // Layout without any gaps between buttons
 
         add(panel, BorderLayout.CENTER); // Add panel to the container
 
@@ -41,10 +40,9 @@ public class PuzzleFrame extends JFrame {
 
         Collections.shuffle(buttons); // Shuffle puzzle buttons
 
-        buttons.add(lastButton); // Put last button only after shuffling, or it will be anywhere!!!
+        buttons.add(lastButton); // Put last button only AFTER shuffling, or it will be anywhere!!!
 
-        addButtonsToPanel(buttons); // Add puzzle buttons to game panel
-
+        addButtonsToPanel(buttons, solution, panel); // Add puzzle buttons to game panel
 
         JButton jButton = new JButton("Solve");
         jButton.addActionListener(a -> autoSolve());
@@ -60,7 +58,8 @@ public class PuzzleFrame extends JFrame {
 
     }
 
-    public void autoSolve() {
+
+    private void autoSolve() {
         Algorithm al = new Algorithm(chunksFolder.getAbsolutePath());
         try {
             al.launch();
@@ -72,13 +71,8 @@ public class PuzzleFrame extends JFrame {
         splitImage(al.getFinalImage());
         buttons.add(lastButton);
 
-        panel.removeAll();
-        for (JComponent btn : buttons) {
-            panel.add(btn);
-        }
-        panel.validate();
-
-        checkSolution();
+        CheckUtils.updateButtons(buttons, panel);
+        CheckUtils.checkSolution(buttons, solution, panel);
     }
 
     private void initSolutionCoordinates() {
@@ -150,73 +144,17 @@ public class PuzzleFrame extends JFrame {
         }
     }
 
-    private void addButtonsToPanel(List<PuzzleButton> buttons) {
+    private void addButtonsToPanel(List<PuzzleButton> buttons,
+                                   List<Point> solution,
+                                   JPanel panel) {
         for (PuzzleButton btn : buttons) {
             panel.add(btn);
             btn.setBorder(BorderFactory.createLineBorder(Color.gray));
-            btn.addActionListener(new ClickAction());
+            btn.addActionListener(new LeftClickAction(buttons, solution, panel));
         }
     }
 
     private BufferedImage loadImage(File source) throws IOException {
         return ImageIO.read(source);
-    }
-
-    private void checkSolution() {
-        var current = new ArrayList<Point>();
-
-        for (JComponent btn : buttons) {
-            current.add((Point) btn.getClientProperty("position"));
-        }
-
-        if (compareList(solution, current)) {
-            JOptionPane.showMessageDialog(panel, "Congratulation!!!",
-                    "You did it!", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
-    public boolean compareList(List<Point> ls1, List<Point> ls2) {
-        return ls1.toString().contentEquals(ls2.toString());
-    }
-
-    private class ClickAction extends AbstractAction {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            checkButton(e);
-            checkSolution();
-        }
-
-        /**
-         * Each time player click on button near white button they swap
-         */
-        private void checkButton(ActionEvent e) {
-            int lidx = 0;
-            for (PuzzleButton button : buttons) {
-                if (button.isLastButton()) {
-                    lidx = buttons.indexOf(button);
-                }
-            }
-
-            var button = (JButton) e.getSource();
-            int bidx = buttons.indexOf(button);
-
-            if ((bidx - 1 == lidx) || (bidx + 1 == lidx)
-                    || (bidx - 3 == lidx) || (bidx + 3 == lidx)) {
-                Collections.swap(buttons, bidx, lidx);
-                updateButtons();
-            }
-        }
-
-        /**
-         * Each time player moving white button whole panel updating due to his move
-         */
-        private void updateButtons() {
-            panel.removeAll();
-            for (JComponent btn : buttons) {
-                panel.add(btn);
-            }
-            panel.validate();
-        }
     }
 }
