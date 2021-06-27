@@ -8,7 +8,7 @@ public class LeftClickAction extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
         swapButtons(e);
-        CheckUtils.checkSolution(buttons, solution, panel);
+        GameUtils.checkSolution(buttons, solution, panel);
     }
 
     private final List<PuzzleButton> buttons;
@@ -34,13 +34,13 @@ public class LeftClickAction extends AbstractAction {
             }
         }
 
-        var button = (JButton) e.getSource();
+        JButton button = (JButton) e.getSource(); // Event it's a button that was clicked
         int bidx = buttons.indexOf(button);
 
         if ((bidx - 1 == lidx) || (bidx + 1 == lidx)
                 || (bidx - 3 == lidx) || (bidx + 3 == lidx)) {
             Collections.swap(buttons, bidx, lidx);
-            CheckUtils.updateButtons(buttons, panel);
+            GameUtils.updateButtons(buttons, panel);
         }
     }
 }

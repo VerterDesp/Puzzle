@@ -3,7 +3,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CheckUtils {
+public class GameUtils {
 
     private static boolean compareList(java.util.List<Point> ls1, List<Point> ls2) {
         return ls1.toString().contentEquals(ls2.toString());

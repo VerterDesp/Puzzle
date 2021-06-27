@@ -1,3 +1,5 @@
+import algorithm.Algorithm;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +31,7 @@ public class PuzzleFrame extends JFrame {
     private void initUI() throws Exception {
         initSolutionCoordinates(); // Init right position of each button
 
-        panel.setBorder(BorderFactory.createLineBorder(Color.gray));
+        panel.setBorder(BorderFactory.createLineBorder(Color.white));
         panel.setLayout(new GridLayout(rows, columns, 0, 0)); // Layout without any gaps between buttons
 
         add(panel, BorderLayout.CENTER); // Add panel to the container
@@ -42,12 +44,9 @@ public class PuzzleFrame extends JFrame {
 
         buttons.add(lastButton); // Put last button only AFTER shuffling, or it will be anywhere!!!
 
-        addButtonsToPanel(buttons, solution, panel); // Add puzzle buttons to game panel
+        addButtonsToPanel(buttons, panel); // Add puzzle buttons to game panel
 
-        JButton jButton = new JButton("Solve");
-        jButton.addActionListener(a -> autoSolve());
-        add(bottomPanel, BorderLayout.EAST);
-        bottomPanel.add(jButton);
+        initSolveButton();
 
         pack(); // Sizes the frame to preferred size
 
@@ -55,9 +54,14 @@ public class PuzzleFrame extends JFrame {
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Centralize the window
-
     }
 
+    private void initSolveButton() {
+        JButton jButton = new JButton("Solve");
+        jButton.addActionListener(a -> autoSolve());
+        add(bottomPanel, BorderLayout.EAST);
+        bottomPanel.add(jButton);
+    }
 
     private void autoSolve() {
         Algorithm al = new Algorithm(chunksFolder.getAbsolutePath());
@@ -71,8 +75,8 @@ public class PuzzleFrame extends JFrame {
         splitImage(al.getFinalImage());
         buttons.add(lastButton);
 
-        CheckUtils.updateButtons(buttons, panel);
-        CheckUtils.checkSolution(buttons, solution, panel);
+        GameUtils.updateButtons(buttons, panel);
+        GameUtils.checkSolution(buttons, solution, panel);
     }
 
     private void initSolutionCoordinates() {
@@ -132,6 +136,7 @@ public class PuzzleFrame extends JFrame {
     private void initButton(BufferedImage chunk, int i, int j) {
         var button = new PuzzleButton(chunk);
         button.putClientProperty("position", new Point(i, j));
+        button.addActionListener(new LeftClickAction(buttons, solution, panel));
 
         if (i == (rows - 1) && j == (columns - 1)) {
             lastButton = new PuzzleButton();
@@ -139,18 +144,17 @@ public class PuzzleFrame extends JFrame {
             lastButton.setContentAreaFilled(false);
             lastButton.setLastButton(true);
             lastButton.putClientProperty("position", new Point(i, j));
+            lastButton.addActionListener(new LeftClickAction(buttons, solution, panel));
         } else {
+            button.addMouseListener(new RightClickAction());
             buttons.add(button);
         }
     }
 
     private void addButtonsToPanel(List<PuzzleButton> buttons,
-                                   List<Point> solution,
                                    JPanel panel) {
         for (PuzzleButton btn : buttons) {
             panel.add(btn);
-            btn.setBorder(BorderFactory.createLineBorder(Color.gray));
-            btn.addActionListener(new LeftClickAction(buttons, solution, panel));
         }
     }
 
