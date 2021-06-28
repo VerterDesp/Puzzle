@@ -34,7 +34,7 @@ public class LeftClickAction extends AbstractAction {
             }
         }
 
-        JButton button = (JButton) e.getSource(); // Event it's a button that was clicked
+        JButton button = (JButton) e.getSource(); // Event - it's a button that was clicked
         int bidx = buttons.indexOf(button);
 
         if ((bidx - 1 == lidx) || (bidx + 1 == lidx)

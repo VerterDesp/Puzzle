@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,8 +19,12 @@ public class GameUtils {
                                      JPanel panel) {
         var current = new ArrayList<Point>();
 
-        for (JComponent btn : buttons) {
+        for (PuzzleButton btn : buttons) {
             current.add((Point) btn.getClientProperty("position"));
+            if (btn.isFlipped()) {
+                BufferedImage bufferedImage = flipImage(getBuffImage(btn.getIcon()));
+                btn.setIcon(new ImageIcon(bufferedImage));
+            }
         }
 
         if (compareList(solution, current)) {
@@ -32,9 +38,34 @@ public class GameUtils {
      */
     public static void updateButtons(List<PuzzleButton> buttons, JPanel panel) {
         panel.removeAll();
-        for (JComponent btn : buttons) {
-            panel.add(btn);
-        }
+        buttons.forEach(panel::add);
         panel.validate();
+    }
+
+    public static BufferedImage flipImage(BufferedImage image) {
+        //BufferedImage image = getBuffImage(icon);
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(1, -1));
+        at.concatenate(AffineTransform.getTranslateInstance(0, -image.getHeight()));
+
+        BufferedImage flippedImage = new BufferedImage(
+                image.getWidth(), image.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = flippedImage.createGraphics();
+        g.transform(at);
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return flippedImage;
+    }
+
+    public static BufferedImage getBuffImage(Icon icon) {
+        BufferedImage im = new BufferedImage(
+                icon.getIconWidth(),
+                icon.getIconHeight(),
+                BufferedImage.TYPE_INT_RGB);
+        Graphics g = im.createGraphics();
+        icon.paintIcon(null, g, 0, 0); // Paint the Icon to the BufferedImage
+        g.dispose();
+        return im;
     }
 }

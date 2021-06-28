@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class PuzzleFrame extends JFrame {
@@ -89,7 +90,7 @@ public class PuzzleFrame extends JFrame {
     }
 
     private String originExt() {
-        var name = sourceImage.getName();
+        String name = sourceImage.getName();
         return name.substring(name.indexOf(".") + 1);
     }
 
@@ -104,8 +105,8 @@ public class PuzzleFrame extends JFrame {
 
     private void moveChunks(List<BufferedImage> ch) throws IOException {
         if (Objects.requireNonNull(chunksFolder.list()).length == 0) {
-            var ext = originExt();
-            var random = getSet().iterator();
+            String ext = originExt();
+            Iterator<Integer> random = getSet().iterator();
             for (BufferedImage im : ch) {
                 String chunkPath = chunksFolder
                         .getAbsolutePath() + "/" + random.next() + "." + ext;
@@ -119,24 +120,33 @@ public class PuzzleFrame extends JFrame {
         int chunkWidth = im.getWidth() / columns;
         int chunkHeight = im.getHeight() / rows;
 
-        int x = 0;
-        int y;
+        int x;
+        int y = 0;
         for (int i  = 0; i < rows; i++) {
-            y = 0;
+            x = 0;
             for (int j = 0; j < columns; j++) {
-                var chunk = im.getSubimage(y, x, chunkWidth, chunkHeight);
+                var chunk = im.getSubimage(x, y, chunkWidth, chunkHeight);
                 initButton(chunk, i, j);
                 chunks.add(chunk);
-                y += chunkWidth;
+                x += chunkWidth;
             }
-            x += chunkHeight;
+            y += chunkHeight;
         }
     }
 
     private void initButton(BufferedImage chunk, int i, int j) {
-        var button = new PuzzleButton(chunk);
+        PuzzleButton button;
+        int num = randomInt(1, 3);
+        if (num == 2) {
+            BufferedImage flipped = GameUtils.flipImage(chunk);
+            button = new PuzzleButton(flipped);
+            button.setFlipped(true);
+        } else
+            button = new PuzzleButton(chunk);
+
         button.putClientProperty("position", new Point(i, j));
         button.addActionListener(new LeftClickAction(buttons, solution, panel));
+        button.addMouseListener(new RightClickAction());
 
         if (i == (rows - 1) && j == (columns - 1)) {
             lastButton = new PuzzleButton();
@@ -146,19 +156,20 @@ public class PuzzleFrame extends JFrame {
             lastButton.putClientProperty("position", new Point(i, j));
             lastButton.addActionListener(new LeftClickAction(buttons, solution, panel));
         } else {
-            button.addMouseListener(new RightClickAction());
             buttons.add(button);
         }
     }
 
     private void addButtonsToPanel(List<PuzzleButton> buttons,
                                    JPanel panel) {
-        for (PuzzleButton btn : buttons) {
-            panel.add(btn);
-        }
+        buttons.forEach(panel::add);
     }
 
     private BufferedImage loadImage(File source) throws IOException {
         return ImageIO.read(source);
+    }
+
+    private int randomInt(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 }

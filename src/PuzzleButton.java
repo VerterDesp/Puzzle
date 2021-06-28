@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 /**
  * Implementation of one image piece
@@ -10,6 +9,8 @@ import java.awt.event.MouseListener;
 public class PuzzleButton extends JButton {
 
     private boolean lastButton;
+
+    private boolean flipped;
 
     public PuzzleButton() {
         initUI();
@@ -25,6 +26,7 @@ public class PuzzleButton extends JButton {
      */
     private void initUI() {
         lastButton = false;
+        flipped = false;
 
         setBorder(BorderFactory.createLineBorder(Color.white));
 
@@ -46,5 +48,13 @@ public class PuzzleButton extends JButton {
 
     public void setLastButton(boolean lastButton) {
         this.lastButton = lastButton;
+    }
+
+    public boolean isFlipped() {
+        return flipped;
+    }
+
+    public void setFlipped(boolean flipped) {
+        this.flipped = flipped;
     }
 }
