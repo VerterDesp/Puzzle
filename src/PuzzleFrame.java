@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class PuzzleFrame extends JFrame {
@@ -20,30 +19,29 @@ public class PuzzleFrame extends JFrame {
     private final File sourceImage = new File("src/resources/original/gor.jpg");
     private final File chunksFolder = new File("src/resources/chunks");
     private final List<BufferedImage> chunks = new ArrayList<>();
-    private List<PuzzleButton> buttons = new ArrayList<>();
+    private final List<PuzzleButton> buttons = new ArrayList<>();
+    private final List<Point> solution = new ArrayList<>();
 
-    private PuzzleButton lastButton;
-    private List<Point> solution;
+    private final Random random = new Random();
 
     public PuzzleFrame() throws Exception {
         initUI();
     }
 
     private void initUI() throws Exception {
-        initSolutionCoordinates(); // Init right position of each button
+        initSolutionCoordinates(solution); // Init right position of each button
 
         panel.setBorder(BorderFactory.createLineBorder(Color.white));
         panel.setLayout(new GridLayout(rows, columns, 0, 0)); // Layout without any gaps between buttons
 
         add(panel, BorderLayout.CENTER); // Add panel to the container
 
-        splitImage(loadImage(sourceImage)); // Split image and init buttons
+        splitImage(loadImage(sourceImage), true); // Split image and init buttons
 
         moveChunks(chunks); // Moving image chunks to its folder
 
         Collections.shuffle(buttons); // Shuffle puzzle buttons
-
-        buttons.add(lastButton); // Put last button only AFTER shuffling, or it will be anywhere!!!
+        addLastButton(buttons); // Add last button only AFTER shuffling, or it will be anywhere!!!
 
         addButtonsToPanel(buttons, panel); // Add puzzle buttons to game panel
 
@@ -72,16 +70,15 @@ public class PuzzleFrame extends JFrame {
             e.printStackTrace();
         }
 
-        buttons = new ArrayList<>();
-        splitImage(al.getFinalImage());
-        buttons.add(lastButton);
+        buttons.clear();
+        splitImage(al.getFinalImage(), false);
+        addLastButton(buttons);
 
         GameUtils.updateButtons(buttons, panel);
         GameUtils.checkSolution(buttons, solution, panel);
     }
 
-    private void initSolutionCoordinates() {
-        solution = new ArrayList<>();
+    private void initSolutionCoordinates(List<Point> solution) {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 solution.add(new Point(i, j));
@@ -116,7 +113,7 @@ public class PuzzleFrame extends JFrame {
         }
     }
 
-    private void splitImage(BufferedImage im) {
+    private void splitImage(BufferedImage im, boolean toFlip) {
         int chunkWidth = im.getWidth() / columns;
         int chunkHeight = im.getHeight() / rows;
 
@@ -126,7 +123,7 @@ public class PuzzleFrame extends JFrame {
             x = 0;
             for (int j = 0; j < columns; j++) {
                 var chunk = im.getSubimage(x, y, chunkWidth, chunkHeight);
-                initButton(chunk, i, j);
+                initButton(chunk, i, j, toFlip);
                 chunks.add(chunk);
                 x += chunkWidth;
             }
@@ -134,10 +131,9 @@ public class PuzzleFrame extends JFrame {
         }
     }
 
-    private void initButton(BufferedImage chunk, int i, int j) {
+    private void initButton(BufferedImage chunk, int i, int j, boolean toFlip) {
         PuzzleButton button;
-        int num = randomInt(1, 3);
-        if (num == 2) {
+        if (toFlip && random.nextBoolean()) {
             BufferedImage flipped = GameUtils.flipImage(chunk);
             button = new PuzzleButton(flipped);
             button.setFlipped(true);
@@ -146,18 +142,19 @@ public class PuzzleFrame extends JFrame {
 
         button.putClientProperty("position", new Point(i, j));
         button.addActionListener(new LeftClickAction(buttons, solution, panel));
-        button.addMouseListener(new RightClickAction());
+        button.addMouseListener(new RightClickAction(buttons, solution, panel));
 
-        if (i == (rows - 1) && j == (columns - 1)) {
-            lastButton = new PuzzleButton();
-            lastButton.setBorderPainted(false);
-            lastButton.setContentAreaFilled(false);
-            lastButton.setLastButton(true);
-            lastButton.putClientProperty("position", new Point(i, j));
-            lastButton.addActionListener(new LeftClickAction(buttons, solution, panel));
-        } else {
-            buttons.add(button);
-        }
+        buttons.add(button);
+    }
+
+    private PuzzleButton initLastButton() {
+        PuzzleButton last = new PuzzleButton();
+        last.setBorderPainted(false);
+        last.setContentAreaFilled(false);
+        last.setLastButton(true);
+        last.putClientProperty("position", new Point(rows - 1, columns - 1));
+        last.addActionListener(new LeftClickAction(buttons, solution, panel));
+        return last;
     }
 
     private void addButtonsToPanel(List<PuzzleButton> buttons,
@@ -169,7 +166,7 @@ public class PuzzleFrame extends JFrame {
         return ImageIO.read(source);
     }
 
-    private int randomInt(int min, int max) {
-        return ThreadLocalRandom.current().nextInt(min, max + 1);
+    private void addLastButton(List<PuzzleButton> buttons) {
+        buttons.set(buttons.size() - 1, initLastButton());
     }
 }

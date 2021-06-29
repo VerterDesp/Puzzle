@@ -7,27 +7,15 @@ import java.util.List;
 
 public class GameUtils {
 
-    private static boolean compareList(java.util.List<Point> ls1, List<Point> ls2) {
-        return ls1.toString().contentEquals(ls2.toString());
-    }
-
     /**
      * Comparing coordinates of current buttons position and right buttons position
      */
     public static void checkSolution(List<PuzzleButton> buttons,
                                      List<Point> solution,
                                      JPanel panel) {
-        var current = new ArrayList<Point>();
+        List<Point> current = currentPosition(buttons);
 
-        for (PuzzleButton btn : buttons) {
-            current.add((Point) btn.getClientProperty("position"));
-            if (btn.isFlipped()) {
-                BufferedImage bufferedImage = flipImage(getBuffImage(btn.getIcon()));
-                btn.setIcon(new ImageIcon(bufferedImage));
-            }
-        }
-
-        if (compareList(solution, current)) {
+        if (compareList(solution, current) && isButtonsNotFlipped(buttons)) {
             JOptionPane.showMessageDialog(panel, "Congratulation!!!",
                     "You did it!", JOptionPane.INFORMATION_MESSAGE);
         }
@@ -42,8 +30,10 @@ public class GameUtils {
         panel.validate();
     }
 
+    /**
+     * Flip image from param
+     */
     public static BufferedImage flipImage(BufferedImage image) {
-        //BufferedImage image = getBuffImage(icon);
         AffineTransform at = new AffineTransform();
         at.concatenate(AffineTransform.getScaleInstance(1, -1));
         at.concatenate(AffineTransform.getTranslateInstance(0, -image.getHeight()));
@@ -58,14 +48,18 @@ public class GameUtils {
         return flippedImage;
     }
 
-    public static BufferedImage getBuffImage(Icon icon) {
-        BufferedImage im = new BufferedImage(
-                icon.getIconWidth(),
-                icon.getIconHeight(),
-                BufferedImage.TYPE_INT_RGB);
-        Graphics g = im.createGraphics();
-        icon.paintIcon(null, g, 0, 0); // Paint the Icon to the BufferedImage
-        g.dispose();
-        return im;
+    private static boolean compareList(List<Point> ls1, List<Point> ls2) {
+        return ls1.toString().contentEquals(ls2.toString());
+    }
+
+    private static boolean isButtonsNotFlipped(List<PuzzleButton> buttons) {
+        return buttons.stream().noneMatch(PuzzleButton::isFlipped);
+    }
+
+    private static List<Point> currentPosition(List<PuzzleButton> buttons) {
+        List<Point> current = new ArrayList<>();
+        buttons.forEach(b -> current
+                        .add((Point) b.getClientProperty("position")));
+        return current;
     }
 }
