@@ -31,7 +31,6 @@ public class Algorithm {
         detectSchema();
         makeFinalImgSeq();
         finalImage = mergeFinalImage();
-        //ImageIO.write(finalImage, "jpeg", new File("finalImg.jpg"));
     }
 
     private BufferedImage mergeFinalImage() throws IOException {
@@ -211,10 +210,8 @@ public class Algorithm {
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
             imageInfo.setNeighborName(null);
-            //imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
-            //imageInfo.setRate(rate);
         }
         return imageInfo;
     }
@@ -236,10 +233,8 @@ public class Algorithm {
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
             imageInfo.setNeighborName(null);
-            //imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
-            //imageInfo.setRate(rate);
         }
         return imageInfo;
     }
@@ -261,10 +256,8 @@ public class Algorithm {
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
             imageInfo.setNeighborName(null);
-            //imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
-            //imageInfo.setRate(rate);
         }
         return imageInfo;
     }
@@ -286,10 +279,8 @@ public class Algorithm {
         ImageInfo imageInfo = new ImageInfo();
         if(rate <= defaultRate) {
             imageInfo.setNeighborName(null);
-            //imageInfo.setRate(0.0d);
         } else {
             imageInfo.setNeighborName(neighbor);
-            //imageInfo.setRate(rate);
         }
         return imageInfo;
     }
@@ -314,18 +305,21 @@ public class Algorithm {
         int width1 = fileA.getWidth();
         int height1 = fileA.getHeight();
 
+        /* Each pixel has RGB value. So cycle need to get certain
+           red, green, and blue value of each pixel. And count
+           difference of each rgb-colour of pixel */
         long difference = 0;
             for (int y = 0; y < height1; y++) {
                 for (int x = 0; x < width1; x++) {
-                    int rgbA = fileA.getRGB(x, y);
+                    int rgbA = fileA.getRGB(x, y); // Get RGB from pixel
                     int rgbB = fileB.getRGB(x, y);
-                    int redA = (rgbA >> 16) & 0xff;
+                    int redA = (rgbA >> 16) & 0xff; // Get red by turning off rest bits that dont represent red
                     int greenA = (rgbA >> 8) & 0xff;
                     int blueA = (rgbA) & 0xff;
                     int redB = (rgbB >> 16) & 0xff;
                     int greenB = (rgbB >> 8) & 0xff;
                     int blueB = (rgbB) & 0xff;
-                    difference += Math.abs(redA - redB);
+                    difference += Math.abs(redA - redB); //
                     difference += Math.abs(greenA - greenB);
                     difference += Math.abs(blueA - blueB);
                 }

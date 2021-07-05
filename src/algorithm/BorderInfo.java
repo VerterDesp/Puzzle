@@ -3,17 +3,12 @@ package algorithm;
 public class BorderInfo {
 
     private String leftBorderImName;
-    //private double leftBorderRate;
 
     private String rightBorderImName;
-    //private double rightBorderRate;
 
     private String topBorderImName;
-    //private double topBorderRate;
 
     private String bottomBorderImName;
-    //private double bottomBorderRate;
-
 
     public String getLeftBorderImName() {
         return leftBorderImName;

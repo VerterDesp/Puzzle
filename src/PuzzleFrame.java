@@ -16,7 +16,7 @@ public class PuzzleFrame extends JFrame {
     private final JPanel bottomPanel = new JPanel();
     private final int rows = 4;
     private final int columns = 3;
-    private final File sourceImage = new File("src/resources/original/gor.jpg");
+    private final File sourceImage = new File("src/resources/original/p.jpg");
     private final File chunksFolder = new File("src/resources/chunks");
     private final List<BufferedImage> chunks = new ArrayList<>();
     private final List<PuzzleButton> buttons = new ArrayList<>();
